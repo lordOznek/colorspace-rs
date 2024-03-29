@@ -7,10 +7,7 @@ use super::xyz::*;
 
 /// Create a matrix to go from XYZ to the given colour space, assuming `xyz_white`
 /// is the reference white of the XYZ. CAT02 is used for the CAT.
-pub fn xyz_to_rgb_matrix<T>(
-    xyz_white: XYY<T>,
-    color_space_rgb: &ColorSpaceRGB<T>,
-) -> Matrix33<T>
+pub fn xyz_to_rgb_matrix<T>(xyz_white: XYY<T>, color_space_rgb: &ColorSpaceRGB<T>) -> Matrix33<T>
 where
     T: Real,
 {
@@ -19,10 +16,7 @@ where
 
 /// Create a matrix to go from XYZ to the given colour space, using the given CAT
 /// matrix
-pub fn xyz_to_rgb_matrix_with_cat<T>(
-    cat_mtx: &Matrix33<T>,
-    color_space_rgb: &ColorSpaceRGB<T>,
-) -> Matrix33<T>
+pub fn xyz_to_rgb_matrix_with_cat<T>(cat_mtx: &Matrix33<T>, color_space_rgb: &ColorSpaceRGB<T>) -> Matrix33<T>
 where
     T: Real,
 {
@@ -31,10 +25,7 @@ where
 
 /// Create a mtrix to go from the given RGB space to XYZ, with the given XYZ
 /// white point.
-pub fn rgb_to_xyz_matrix<T>(
-    xyz_white: XYY<T>,
-    color_space_rgb: &ColorSpaceRGB<T>,
-) -> Matrix33<T>
+pub fn rgb_to_xyz_matrix<T>(xyz_white: XYY<T>, color_space_rgb: &ColorSpaceRGB<T>) -> Matrix33<T>
 where
     T: Real,
 {
@@ -77,26 +68,16 @@ where
 ///
 /// This includes chromatic adaptation between the white points specified in
 /// the color spaces provided.
-pub fn rgb_to_rgb_matrix<T>(
-    from_space: &ColorSpaceRGB<T>,
-    to_space: &ColorSpaceRGB<T>,
-) -> Matrix33<T>
+pub fn rgb_to_rgb_matrix<T>(from_space: &ColorSpaceRGB<T>, to_space: &ColorSpaceRGB<T>) -> Matrix33<T>
 where
     T: Real,
 {
-    to_space.xf_xyz_to_rgb
-        * cat02(from_space.white, to_space.white)
-        * from_space.xf_rgb_to_xyz
+    to_space.xf_xyz_to_rgb * cat02(from_space.white, to_space.white) * from_space.xf_rgb_to_xyz
 }
 
 /// Convert the [RGBf] in `from_space` to `to_space`, reading from `from` and
 /// writing to `to`.
-pub fn rgb_to_rgb<T, U>(
-    from_space: &ColorSpaceRGB<T>,
-    to_space: &ColorSpaceRGB<T>,
-    from: &[RGBf<T>],
-    to: &mut [U],
-) -> usize
+pub fn rgb_to_rgb<T, U>(from_space: &ColorSpaceRGB<T>, to_space: &ColorSpaceRGB<T>, from: &[RGBf<T>], to: &mut [U]) -> usize
 where
     T: Real,
     U: From<RGBf<T>>,
@@ -112,12 +93,7 @@ where
 }
 
 #[cfg(all(target_arch = "x86_64", target_feature = "avx"))]
-pub fn xyz_slice_to_rgb_avx_planes<S: simdeez::Simd>(
-    mtx: &M3f32,
-    xs: &[f32],
-    ys: &[f32],
-    zs: &[f32],
-) -> (Vec<f32>, Vec<f32>, Vec<f32>) {
+pub fn xyz_slice_to_rgb_avx_planes<S: simdeez::Simd>(mtx: &M3f32, xs: &[f32], ys: &[f32], zs: &[f32]) -> (Vec<f32>, Vec<f32>, Vec<f32>) {
     let mut result_r = vec![0.0f32; xs.len()];
     let mut result_g = vec![0.0f32; xs.len()];
     let mut result_b = vec![0.0f32; xs.len()];
@@ -190,8 +166,7 @@ fn test_checker_xyz_to_rgb_avx_planes() {
     use float_cmp::{ApproxEq, F32Margin};
     use simdeez::avx2::*;
 
-    let xyz_to_rgb_mtx: M3f32 =
-        xyz_to_rgb_matrix(model_f64::SRGB.white, &model_f64::SRGB).into();
+    let xyz_to_rgb_mtx: M3f32 = xyz_to_rgb_matrix(model_f64::SRGB.white, &model_f64::SRGB).into();
 
     let xs = colorchecker::NAMES
         .iter()
@@ -206,26 +181,14 @@ fn test_checker_xyz_to_rgb_avx_planes() {
         .map(|n| colorchecker::XYZ_D65[*n].z as f32)
         .collect::<Vec<_>>();
 
-    let (rr, rg, rb) =
-        xyz_slice_to_rgb_avx_planes::<Avx2>(&xyz_to_rgb_mtx, &xs, &ys, &zs);
+    let (rr, rg, rb) = xyz_slice_to_rgb_avx_planes::<Avx2>(&xyz_to_rgb_mtx, &xs, &ys, &zs);
 
     use itertools::izip;
-    for (r, g, b, name) in izip!(
-        rr.into_iter(),
-        rg.into_iter(),
-        rb.into_iter(),
-        colorchecker::NAMES.iter()
-    ) {
+    for (r, g, b, name) in izip!(rr.into_iter(), rg.into_iter(), rb.into_iter(), colorchecker::NAMES.iter()) {
         let rgb = rgbf32(r, g, b);
         let rgb_ref = RGBf32::from(colorchecker::SRGB_LINEAR[*name]);
         println!("{} rgb: {}", name, rgb);
         println!("{} ref: {}", name, rgb_ref);
-        assert!(rgb.approx_eq(
-            rgb_ref,
-            F32Margin {
-                epsilon: 1e-7,
-                ulps: 2
-            }
-        ));
+        assert!(rgb.approx_eq(rgb_ref, F32Margin { epsilon: 1e-7, ulps: 2 }));
     }
 }

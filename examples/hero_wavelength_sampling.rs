@@ -14,8 +14,7 @@ fn main() {
 
     let d65 = InterpolatorSprague::<f64>::new(&illuminant::spd::D65);
 
-    let cat_d65_to_d50: M3f64 =
-        chromatic_adaptation::cat02(illuminant::xy::D65, illuminant::xy::D50);
+    let cat_d65_to_d50: M3f64 = chromatic_adaptation::cat02(illuminant::xy::D65, illuminant::xy::D50);
 
     let mut rng = rand::thread_rng();
     let mut dE_min = std::f64::MAX;
@@ -23,9 +22,7 @@ fn main() {
     let mut dE_mean = 0.0f64;
     for name in colorchecker::NAMES.iter() {
         let spd = &colorchecker::SPECTRAL[*name];
-        let swatch = InterpolatorSprague::<f64>::new(
-            &spd.align(SpdShape::new(SPD_START, SPD_END, 1.0)),
-        );
+        let swatch = InterpolatorSprague::<f64>::new(&spd.align(SpdShape::new(SPD_START, SPD_END, 1.0)));
 
         let mut xyz = XYZf64::from_scalar(0.0);
         let mut xyz_w = XYZf64::from_scalar(0.0);
@@ -36,12 +33,7 @@ fn main() {
             // initialize hero wavelengths
             let h = SPD_START + x * SPD_RANGE;
             let lambda = {
-                let mut lambda = [
-                    h,
-                    h + SPD_RANGE / 4.0,
-                    h + 2.0 * SPD_RANGE / 4.0,
-                    h + 3.0 * SPD_RANGE / 4.0,
-                ];
+                let mut lambda = [h, h + SPD_RANGE / 4.0, h + 2.0 * SPD_RANGE / 4.0, h + 3.0 * SPD_RANGE / 4.0];
 
                 for l in lambda.iter_mut() {
                     if *l >= SPD_END {
@@ -55,11 +47,7 @@ fn main() {
             // accumulate
             for l in lambda.iter() {
                 let s = d65.evaluate(*l) * swatch.evaluate(*l);
-                xyz += XYZf64::new(
-                    x_bar.evaluate(*l) * s,
-                    y_bar.evaluate(*l) * s,
-                    z_bar.evaluate(*l) * s,
-                );
+                xyz += XYZf64::new(x_bar.evaluate(*l) * s, y_bar.evaluate(*l) * s, z_bar.evaluate(*l) * s);
                 xyz_w += XYZf64::new(
                     x_bar.evaluate(*l) * d65.evaluate(*l),
                     y_bar.evaluate(*l) * d65.evaluate(*l),
@@ -69,7 +57,7 @@ fn main() {
         }
 
         xyz = xyz / XYZf64::from_scalar(NUM_SAMPLES as f64);
-        xyz_w = xyz_w / XYZf64::from_scalar(NUM_SAMPLES as f64);
+        // xyz_w = xyz_w / XYZf64::from_scalar(NUM_SAMPLES as f64);
 
         let xyz_ref = colorchecker::SPECTRAL[*name]
             .align(SpdShape::astm_e308())
@@ -98,15 +86,9 @@ fn main() {
     let mut dE_max = std::f64::MIN;
     let mut dE_mean = 0.0f64;
 
-    let my_r = InterpolatorSprague::<f64>::new(
-        &uplifting::MY_RED.align(SpdShape::new(SPD_START, SPD_END, 1.0)),
-    );
-    let my_g = InterpolatorSprague::<f64>::new(
-        &uplifting::MY_GREEN.align(SpdShape::new(SPD_START, SPD_END, 1.0)),
-    );
-    let my_b = InterpolatorSprague::<f64>::new(
-        &uplifting::MY_BLUE.align(SpdShape::new(SPD_START, SPD_END, 1.0)),
-    );
+    let my_r = InterpolatorSprague::<f64>::new(&uplifting::MY_RED.align(SpdShape::new(SPD_START, SPD_END, 1.0)));
+    let my_g = InterpolatorSprague::<f64>::new(&uplifting::MY_GREEN.align(SpdShape::new(SPD_START, SPD_END, 1.0)));
+    let my_b = InterpolatorSprague::<f64>::new(&uplifting::MY_BLUE.align(SpdShape::new(SPD_START, SPD_END, 1.0)));
 
     for name in colorchecker::NAMES.iter() {
         let rgb_ref = colorchecker::SRGB_LINEAR[*name];
@@ -119,12 +101,7 @@ fn main() {
             // initialize hero wavelengths
             let h = SPD_START + x * SPD_RANGE;
             let lambda = {
-                let mut lambda = [
-                    h,
-                    h + SPD_RANGE / 4.0,
-                    h + 2.0 * SPD_RANGE / 4.0,
-                    h + 3.0 * SPD_RANGE / 4.0,
-                ];
+                let mut lambda = [h, h + SPD_RANGE / 4.0, h + 2.0 * SPD_RANGE / 4.0, h + 3.0 * SPD_RANGE / 4.0];
 
                 for l in lambda.iter_mut() {
                     if *l >= SPD_END {
@@ -137,16 +114,10 @@ fn main() {
 
             // accumulate
             for l in lambda.iter() {
-                let rho = my_r.evaluate(*l) * rgb_ref.r
-                    + my_g.evaluate(*l) * rgb_ref.g
-                    + my_b.evaluate(*l) * rgb_ref.b;
+                let rho = my_r.evaluate(*l) * rgb_ref.r + my_g.evaluate(*l) * rgb_ref.g + my_b.evaluate(*l) * rgb_ref.b;
 
                 let s = d65.evaluate(*l) * rho;
-                xyz += XYZf64::new(
-                    x_bar.evaluate(*l) * s,
-                    y_bar.evaluate(*l) * s,
-                    z_bar.evaluate(*l) * s,
-                );
+                xyz += XYZf64::new(x_bar.evaluate(*l) * s, y_bar.evaluate(*l) * s, z_bar.evaluate(*l) * s);
                 xyz_w += XYZf64::new(
                     x_bar.evaluate(*l) * d65.evaluate(*l),
                     y_bar.evaluate(*l) * d65.evaluate(*l),
@@ -156,7 +127,7 @@ fn main() {
         }
 
         xyz = xyz / XYZf64::from_scalar(NUM_SAMPLES as f64);
-        xyz_w = xyz_w / XYZf64::from_scalar(NUM_SAMPLES as f64);
+        // xyz_w = xyz_w / XYZf64::from_scalar(NUM_SAMPLES as f64);
 
         let xyz_ref = colorchecker::SPECTRAL[*name]
             .align(SpdShape::astm_e308())
@@ -201,12 +172,7 @@ fn main() {
             // initialize hero wavelengths
             let h = SPD_START + x * SPD_RANGE;
             let lambda = {
-                let mut lambda = [
-                    h,
-                    h + SPD_RANGE / 4.0,
-                    h + 2.0 * SPD_RANGE / 4.0,
-                    h + 3.0 * SPD_RANGE / 4.0,
-                ];
+                let mut lambda = [h, h + SPD_RANGE / 4.0, h + 2.0 * SPD_RANGE / 4.0, h + 3.0 * SPD_RANGE / 4.0];
 
                 for l in lambda.iter_mut() {
                     if *l >= SPD_END {
@@ -219,16 +185,10 @@ fn main() {
 
             // accumulate
             for l in lambda.iter() {
-                let rho = my_r.evaluate(*l) * rgb_ref.r
-                    + my_g.evaluate(*l) * rgb_ref.g
-                    + my_b.evaluate(*l) * rgb_ref.b;
+                let rho = my_r.evaluate(*l) * rgb_ref.r + my_g.evaluate(*l) * rgb_ref.g + my_b.evaluate(*l) * rgb_ref.b;
 
                 let s = d65.evaluate(*l) * rho;
-                xyz += XYZf64::new(
-                    x_bar.evaluate(*l) * s,
-                    y_bar.evaluate(*l) * s,
-                    z_bar.evaluate(*l) * s,
-                );
+                xyz += XYZf64::new(x_bar.evaluate(*l) * s, y_bar.evaluate(*l) * s, z_bar.evaluate(*l) * s);
                 xyz_w += XYZf64::new(
                     x_bar.evaluate(*l) * d65.evaluate(*l),
                     y_bar.evaluate(*l) * d65.evaluate(*l),
@@ -238,7 +198,7 @@ fn main() {
         }
 
         xyz = xyz / XYZf64::from_scalar(NUM_SAMPLES as f64);
-        xyz_w = xyz_w / XYZf64::from_scalar(NUM_SAMPLES as f64);
+        // xyz_w = xyz_w / XYZf64::from_scalar(NUM_SAMPLES as f64);
 
         let xyz_ref = colorchecker::SPECTRAL[*name]
             .align(SpdShape::astm_e308())

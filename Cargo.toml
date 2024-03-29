@@ -2,7 +2,7 @@
 name = "colorspace"
 version = "0.1.0"
 authors = ["Anders Langlands <anderslanglands@gmail.com>"]
-edition = "2018"
+edition = "2021"
 readme = "README.md"
 license = "Apache-2.0"
 description = "A crate for colorimetry covering spectral, RGB, XYZ, L*a'b' and conversions thereof"
@@ -27,7 +27,7 @@ simdeez = "1.0.7"
 rand = "0.7.0"
 
 [dev-dependencies]
-criterion="0.2"
+criterion="0.5"
 png = "0.16.3"
 
 [[bench]]

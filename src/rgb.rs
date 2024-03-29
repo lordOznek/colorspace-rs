@@ -51,12 +51,7 @@ where
             panic!("invalid slice cast");
         }
 
-        unsafe {
-            std::slice::from_raw_parts(
-                slice.as_ptr() as *const RGBf<T>,
-                slice.len() / 3,
-            )
-        }
+        unsafe { std::slice::from_raw_parts(slice.as_ptr() as *const RGBf<T>, slice.len() / 3) }
     }
 }
 
@@ -165,9 +160,7 @@ impl ApproxEq for RGBf32 {
     type Margin = F32Margin;
     fn approx_eq<T: Into<Self::Margin>>(self, other: Self, margin: T) -> bool {
         let margin = margin.into();
-        self.r.approx_eq(other.r, margin)
-            && self.g.approx_eq(other.g, margin)
-            && self.b.approx_eq(other.b, margin)
+        self.r.approx_eq(other.r, margin) && self.g.approx_eq(other.g, margin) && self.b.approx_eq(other.b, margin)
     }
 }
 
@@ -175,9 +168,7 @@ impl ApproxEq for RGBf64 {
     type Margin = F64Margin;
     fn approx_eq<T: Into<Self::Margin>>(self, other: Self, margin: T) -> bool {
         let margin = margin.into();
-        self.r.approx_eq(other.r, margin)
-            && self.g.approx_eq(other.g, margin)
-            && self.b.approx_eq(other.b, margin)
+        self.r.approx_eq(other.r, margin) && self.g.approx_eq(other.g, margin) && self.b.approx_eq(other.b, margin)
     }
 }
 
@@ -495,12 +486,7 @@ impl RGBu8 {
 
         // This is safe as long as the length of `slice` is a multiple of 3,
         // which we guarantee with the panic!, above
-        unsafe {
-            std::slice::from_raw_parts(
-                slice.as_ptr() as *const RGBu8,
-                slice.len() / 3,
-            )
-        }
+        unsafe { std::slice::from_raw_parts(slice.as_ptr() as *const RGBu8, slice.len() / 3) }
     }
 }
 

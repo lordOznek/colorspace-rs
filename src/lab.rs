@@ -10,7 +10,10 @@ use numeric_literals::replace_float_literals;
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
 #[allow(non_snake_case)]
-pub struct Lab<T> where T: Real {
+pub struct Lab<T>
+where
+    T: Real,
+{
     pub L: T,
     pub a: T,
     pub b: T,
@@ -18,7 +21,10 @@ pub struct Lab<T> where T: Real {
 
 /// Short constructor for a Lab
 #[allow(non_snake_case)]
-pub fn lab<T>(L: T, a: T, b: T) -> Lab<T> where T: Real{
+pub fn lab<T>(L: T, a: T, b: T) -> Lab<T>
+where
+    T: Real,
+{
     Lab { L, a, b }
 }
 
@@ -27,7 +33,10 @@ pub fn lab<T>(L: T, a: T, b: T) -> Lab<T> where T: Real{
 /// relative to something else, you might want to convert it first using the
 /// chromatic_adaptation module.
 #[replace_float_literals(T::from(literal).unwrap())]
-pub fn xyz_to_lab<T, X1: Into<XYZ<T>>, X2: Into<XYZ<T>> >(xyz: X1, ref_white: X2) -> Lab<T> where T: Real {
+pub fn xyz_to_lab<T, X1: Into<XYZ<T>>, X2: Into<XYZ<T>>>(xyz: X1, ref_white: X2) -> Lab<T>
+where
+    T: Real,
+{
     let xyz: XYZ<T> = xyz.into();
     let ref_white: XYZ<T> = ref_white.into();
     let xyz_r = xyz / ref_white;
@@ -62,10 +71,7 @@ pub fn xyz_to_lab<T, X1: Into<XYZ<T>>, X2: Into<XYZ<T>> >(xyz: X1, ref_white: X2
 /// relative to something else, you might want to adapt it after using the
 /// chromatic_adaptation module.
 #[replace_float_literals(T::from(literal).unwrap())]
-pub fn lab_to_xyz<T, X1: Into<Lab<T>>, X2: Into<XYZ<T>>>(
-    lab: X1,
-    ref_white: X2,
-) -> XYZ<T>
+pub fn lab_to_xyz<T, X1: Into<Lab<T>>, X2: Into<XYZ<T>>>(lab: X1, ref_white: X2) -> XYZ<T>
 where
     T: Real,
 {
@@ -80,11 +86,7 @@ where
     let f_x = (lab.a / 500.0) + f_y;
 
     let f_x3 = f_x.powi(3);
-    let x_r = if f_x3 > epsilon {
-        f_x3
-    } else {
-        ((116.0 * f_x) - 16.0) / kappa
-    };
+    let x_r = if f_x3 > epsilon { f_x3 } else { ((116.0 * f_x) - 16.0) / kappa };
 
     let y_r = if lab.L > (kappa * epsilon) {
         ((lab.L + 16.0) / 116.0).powi(3)
@@ -93,11 +95,7 @@ where
     };
 
     let f_z3 = f_z.powi(3);
-    let z_r = if f_z3 > epsilon {
-        f_z3
-    } else {
-        ((116.0 * f_z) - 16.0) / kappa
-    };
+    let z_r = if f_z3 > epsilon { f_z3 } else { ((116.0 * f_z) - 16.0) / kappa };
 
     XYZ::new(x_r, y_r, z_r) * ref_white
 }
@@ -128,7 +126,10 @@ fn test_lab_xyz_conversions() {
 /// formula.
 #[allow(non_snake_case)]
 #[replace_float_literals(T::from(literal).unwrap())]
-pub fn delta_E_1976<T>(c1: Lab<T>, c2: Lab<T>) -> T where T: Real {
+pub fn delta_E_1976<T>(c1: Lab<T>, c2: Lab<T>) -> T
+where
+    T: Real,
+{
     ((c1.L - c2.L).powi(2) + (c1.a - c2.a).powi(2) + (c1.b - c2.b).powi(2)).sqrt()
 }
 
@@ -141,7 +142,10 @@ pub fn delta_E_1976<T>(c1: Lab<T>, c2: Lab<T>) -> T where T: Real {
 /// http://www2.ece.rochester.edu/~gsharma/ciede2000/ciede2000noteCRNA.pdf
 #[allow(non_snake_case)]
 #[replace_float_literals(T::from(literal).unwrap())]
-pub fn delta_E_2000<T>(c1: Lab<T>, c2: Lab<T>) -> T where T: Real {
+pub fn delta_E_2000<T>(c1: Lab<T>, c2: Lab<T>) -> T
+where
+    T: Real,
+{
     let L_1 = c1.L;
     let a_1 = c1.a;
     let b_1 = c1.b;
@@ -153,8 +157,7 @@ pub fn delta_E_2000<T>(c1: Lab<T>, c2: Lab<T>) -> T where T: Real {
     let C_1_ab = hypot(a_1, b_1);
     let C_2_ab = hypot(a_2, b_2);
     let C_bar_ab = (C_1_ab + C_2_ab) / 2.0;
-    let G = 0.5
-        * (1.0 - (C_bar_ab.powi(7) / (C_bar_ab.powi(7) + 25.0.powi(7))).sqrt());
+    let G = 0.5 * (1.0 - (C_bar_ab.powi(7) / (C_bar_ab.powi(7) + 25.0.powi(7))).sqrt());
     let a_p_1 = (1.0 + G) * a_1;
     let a_p_2 = (1.0 + G) * a_2;
     let C_p_1 = hypot(a_p_1, b_1);
@@ -177,8 +180,7 @@ pub fn delta_E_2000<T>(c1: Lab<T>, c2: Lab<T>) -> T where T: Real {
     } else {
         delta_h_p + 360.0
     };
-    let delta_H_p =
-        2.0 * sqrt(C_p_1 * C_p_2) * sin((delta_h_p / 2.0).to_radians());
+    let delta_H_p = 2.0 * sqrt(C_p_1 * C_p_2) * sin((delta_h_p / 2.0).to_radians());
 
     // Step 3 - Calculate ΔE₀₀
     let L_bar_p = (L_1 + L_2) / 2.0;
@@ -204,8 +206,7 @@ pub fn delta_E_2000<T>(c1: Lab<T>, c2: Lab<T>) -> T where T: Real {
 
     let R_C = 2.0 * sqrt(C_bar_p.powi(7) / (C_bar_p.powi(7) + 25.0.powi(7)));
 
-    let S_L =
-        1.0 + (0.015 * (L_bar_p - 50.0).powi(2)) / (20.0 + (L_bar_p - 50.0).powi(2)).sqrt();
+    let S_L = 1.0 + (0.015 * (L_bar_p - 50.0).powi(2)) / (20.0 + (L_bar_p - 50.0).powi(2)).sqrt();
     let S_C = 1.0 + 0.045 * C_bar_p;
     let S_H = 1.0 + 0.015 * C_bar_p * T;
     let R_T = -sin((2.0 * delta_theta).to_radians()) * R_C;
@@ -214,12 +215,11 @@ pub fn delta_E_2000<T>(c1: Lab<T>, c2: Lab<T>) -> T where T: Real {
     let K_C = 1.0;
     let K_H = 1.0;
 
-    (
-        sqr(delta_L_p / (K_L * S_L))
-            + sqr(delta_C_p / (K_C * S_C))
-            + sqr(delta_H_p / (K_H * S_H))
-            + R_T * ((delta_C_p / (K_C * S_C)) * (delta_H_p / (K_H * S_H)))
-    ).sqrt()
+    (sqr(delta_L_p / (K_L * S_L))
+        + sqr(delta_C_p / (K_C * S_C))
+        + sqr(delta_H_p / (K_H * S_H))
+        + R_T * ((delta_C_p / (K_C * S_C)) * (delta_H_p / (K_H * S_H))))
+        .sqrt()
 }
 
 #[cfg(test)]

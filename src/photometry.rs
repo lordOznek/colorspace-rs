@@ -1,5 +1,5 @@
-use crate::vspd::*;
 use crate::cmf::CMF;
+use crate::vspd::*;
 
 pub fn spd_to_nit(spd: &VSPD, cmf: &CMF) -> f64 {
     // should probably do a modified verison of ASTM E-308 here but for

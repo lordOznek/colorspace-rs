@@ -11,10 +11,7 @@ use numeric_literals::replace_float_literals;
 /// to another.
 /// See http://www.brucelindbloom.com for more information.
 #[replace_float_literals(T::from(literal).unwrap())]
-pub fn bradford<T, X1: Into<XYZ<T>>, X2: Into<XYZ<T>>>(
-    wp_src: X1,
-    wp_dst: X2,
-) -> Matrix33<T>
+pub fn bradford<T, X1: Into<XYZ<T>>, X2: Into<XYZ<T>>>(wp_src: X1, wp_dst: X2) -> Matrix33<T>
 where
     T: Real,
 {
@@ -28,7 +25,7 @@ where
     let M_A = Matrix33::<T>::new([
         0.8951000, 0.2664000, -0.1614000, 
         -0.7502000, 1.7135000, 0.0367000,
-        0.0389000, -0.0685000, 1.0296000,
+        0.0389000, -0.0685000, 1.0296000
     ]);
     let M_A_inv = M_A.inverse().unwrap();
 
@@ -56,10 +53,7 @@ where
 /// to another.
 /// See http://www.brucelindbloom.com for more information.
 #[replace_float_literals(T::from(literal).unwrap())]
-pub fn von_kries<T, X1: Into<XYZ<T>>, X2: Into<XYZ<T>>>(
-    wp_src: X1,
-    wp_dst: X2,
-) -> Matrix33<T>
+pub fn von_kries<T, X1: Into<XYZ<T>>, X2: Into<XYZ<T>>>(wp_src: X1, wp_dst: X2) -> Matrix33<T>
 where
     T: Real,
 {
@@ -106,10 +100,7 @@ where
 /// to another.
 /// See https://en.wikipedia.org/wiki/CIECAM02#CAT02 for more information.
 #[replace_float_literals(T::from(literal).unwrap())]
-pub fn cat02<T, X1: Into<XYZ<T>>, X2: Into<XYZ<T>>>(
-    wp_src: X1,
-    wp_dst: X2,
-) -> Matrix33<T>
+pub fn cat02<T, X1: Into<XYZ<T>>, X2: Into<XYZ<T>>>(wp_src: X1, wp_dst: X2) -> Matrix33<T>
 where
     T: Real,
 {
@@ -118,9 +109,6 @@ where
     if wp_src == wp_dst {
         return Matrix33::<T>::make_identity();
     }
-
-    let wp_src = wp_src;
-    let wp_dst = wp_dst;
 
     #[rustfmt::skip]
     let M_A = Matrix33::<T>::new([

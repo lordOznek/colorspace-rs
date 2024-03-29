@@ -18,13 +18,7 @@ fn main() {
     // RGBf32::cast_slice() to avoid a copy.
     let px_srgb: Vec<_> = px_in_u8
         .chunks_exact(3)
-        .map(|p| {
-            rgbf32(
-                p[0] as f32 / 255.0,
-                p[1] as f32 / 255.0,
-                p[2] as f32 / 255.0,
-            )
-        })
+        .map(|p| rgbf32(p[0] as f32 / 255.0, p[1] as f32 / 255.0, p[2] as f32 / 255.0))
         .collect();
 
     // Next we'll need a matrix to go from sRGB to XYZ
@@ -87,24 +81,9 @@ fn main() {
         .collect();
 
     // write the images
-    write_png(
-        "marcie_AdobeRGB.png",
-        width,
-        height,
-        rgbu8_slice_as_u8(&px_adobe_rgb_u8),
-    );
-    write_png(
-        "marcie_AlexaWide.png",
-        width,
-        height,
-        rgbu8_slice_as_u8(&px_alexa_wide_u8),
-    );
-    write_png(
-        "marcie_DCI-P3.png",
-        width,
-        height,
-        rgbu8_slice_as_u8(&px_dci_p3_u8),
-    );
+    write_png("marcie_AdobeRGB.png", width, height, rgbu8_slice_as_u8(&px_adobe_rgb_u8));
+    write_png("marcie_AlexaWide.png", width, height, rgbu8_slice_as_u8(&px_alexa_wide_u8));
+    write_png("marcie_DCI-P3.png", width, height, rgbu8_slice_as_u8(&px_dci_p3_u8));
 }
 
 use std::fs::File;
@@ -120,7 +99,7 @@ fn read_png(filename: &str) -> (Vec<u8>, u32, u32) {
 fn write_png(filename: &str, width: u32, height: u32, pixels: &[u8]) {
     use std::io::BufWriter;
     let file = File::create(filename).unwrap();
-    let ref mut w = BufWriter::new(file);
+    let w = BufWriter::new(file);
     let mut encoder = png::Encoder::new(w, width, height);
     encoder.set_color(png::ColorType::RGB);
     encoder.set_depth(png::BitDepth::Eight);
@@ -129,7 +108,5 @@ fn write_png(filename: &str, width: u32, height: u32, pixels: &[u8]) {
 }
 
 pub fn rgbu8_slice_as_u8(slice: &[RGBu8]) -> &[u8] {
-    unsafe {
-        std::slice::from_raw_parts(slice.as_ptr() as *const u8, slice.len() * 3)
-    }
+    unsafe { std::slice::from_raw_parts(slice.as_ptr() as *const u8, slice.len() * 3) }
 }

@@ -331,8 +331,7 @@ where
         oetf: TransferFunction<T>,
         eotf: TransferFunction<T>,
     ) -> ColorSpaceRGB<T> {
-        let xf_xyz_to_rgb =
-            build_xyz_to_rgb_matrix(&red, &green, &blue, &white);
+        let xf_xyz_to_rgb = build_xyz_to_rgb_matrix(&red, &green, &blue, &white);
         let xf_rgb_to_xyz = xf_xyz_to_rgb.inverse().unwrap();
 
         ColorSpaceRGB {
@@ -418,12 +417,7 @@ where
 }
 
 #[replace_float_literals(T::from(literal).unwrap())]
-fn build_xyz_to_rgb_matrix<T>(
-    red: &XYY<T>,
-    green: &XYY<T>,
-    blue: &XYY<T>,
-    white: &XYY<T>,
-) -> Matrix33<T>
+fn build_xyz_to_rgb_matrix<T>(red: &XYY<T>, green: &XYY<T>, blue: &XYY<T>, white: &XYY<T>) -> Matrix33<T>
 where
     T: Real,
 {
@@ -459,17 +453,7 @@ where
     let bw = ((bx * xw) + (by * yw) + (bz * zw)) / yw;
 
     // xyz -> rgb matrix, correctly scaled to white
-    Matrix33::new([
-        rx / rw,
-        ry / rw,
-        rz / rw,
-        gx / gw,
-        gy / gw,
-        gz / gw,
-        bx / bw,
-        by / bw,
-        bz / bw,
-    ])
+    Matrix33::new([rx / rw, ry / rw, rz / rw, gx / gw, gy / gw, gz / gw, bx / bw, by / bw, bz / bw])
 }
 
 pub mod model_f64 {
@@ -897,64 +881,37 @@ mod test {
 
     use std::collections::HashMap;
 
-    fn rgb_workout(
-        model: &ColorSpaceRGB<f64>,
-        checker_linear: &HashMap<String, RGBf64>,
-        checker_encoded: &HashMap<String, RGBf64>,
-    ) {
+    fn rgb_workout(model: &ColorSpaceRGB<f64>, checker_linear: &HashMap<String, RGBf64>, checker_encoded: &HashMap<String, RGBf64>) {
         let xyz_to_rgb_mtx = xyz_to_rgb_matrix(model_f64::SRGB.white, model);
         for (name, xyz_ref) in colorchecker::XYZ_D65.iter() {
             // xyz to rgb
             let rgb = xyz_to_rgb(&xyz_to_rgb_mtx, *xyz_ref);
             println!("    rgb {}: {}", name, rgb);
             println!("REF rgb {}: {}", name, checker_linear[name]);
-            assert!(rgb.approx_eq(
-                checker_linear[name],
-                F64Margin {
-                    epsilon: 1e-14,
-                    ulps: 2
-                }
-            ));
+            assert!(rgb.approx_eq(checker_linear[name], F64Margin { epsilon: 1e-14, ulps: 2 }));
 
             // encode with the oetf
             let rgb = model.encode(rgb);
             println!("    encoded {}: {}", name, rgb);
             println!("REF encoded {}: {}", name, checker_encoded[name]);
-            assert!(rgb.approx_eq(
-                checker_encoded[name],
-                F64Margin {
-                    epsilon: 1e-14,
-                    ulps: 2
-                }
-            ));
+            assert!(rgb.approx_eq(checker_encoded[name], F64Margin { epsilon: 1e-14, ulps: 2 }));
 
             // decode back to linear
             let rgb = model.decode(rgb);
             println!("    decoded {}: {}", name, rgb);
             println!("REF decoded {}: {}", name, checker_linear[name]);
-            assert!(rgb.approx_eq(
-                checker_linear[name],
-                F64Margin {
-                    epsilon: 1e-14,
-                    ulps: 2
-                }
-            ));
+            assert!(rgb.approx_eq(checker_linear[name], F64Margin { epsilon: 1e-14, ulps: 2 }));
         }
     }
 
     #[test]
     fn checker_srgb() {
-        rgb_workout(
-            &model_f64::SRGB,
-            &colorchecker::SRGB_LINEAR,
-            &colorchecker::SRGB_ENCODED,
-        );
+        rgb_workout(&model_f64::SRGB, &colorchecker::SRGB_LINEAR, &colorchecker::SRGB_ENCODED);
     }
 
     #[test]
     fn checker_u8_srgb() {
-        let xyz_to_rgb_mtx =
-            xyz_to_rgb_matrix(model_f64::SRGB.white, &model_f64::SRGB);
+        let xyz_to_rgb_mtx = xyz_to_rgb_matrix(model_f64::SRGB.white, &model_f64::SRGB);
         for name in colorchecker::NAMES.iter() {
             let xyz_ref = colorchecker::XYZ_D65[*name];
             // xyz to rgb
@@ -996,21 +953,11 @@ mod test {
             model_f64::ACES.white,
             crate::xyz::XYZf64::from(model_f64::ACES.white)
         );
-        let cat: M3f64 = crate::chromatic_adaptation::cat02(
-            model_f64::SRGB.white,
-            model_f64::ACES.white,
-        );
+        let cat: M3f64 = crate::chromatic_adaptation::cat02(model_f64::SRGB.white, model_f64::ACES.white);
         println!("cat02: {:?}", cat);
-        let brad: M3f64 = crate::chromatic_adaptation::bradford(
-            model_f64::SRGB.white,
-            model_f64::ACES.white,
-        );
+        let brad: M3f64 = crate::chromatic_adaptation::bradford(model_f64::SRGB.white, model_f64::ACES.white);
         println!("bradford: {:?}", brad);
-        rgb_workout(
-            &model_f64::ACES,
-            &colorchecker::ACES_LINEAR,
-            &colorchecker::ACES_ENCODED,
-        );
+        rgb_workout(&model_f64::ACES, &colorchecker::ACES_LINEAR, &colorchecker::ACES_ENCODED);
     }
 
     #[test]
@@ -1024,20 +971,12 @@ mod test {
 
     #[test]
     fn checker_acescg() {
-        rgb_workout(
-            &model_f64::ACES_CG,
-            &colorchecker::ACES_CG_LINEAR,
-            &colorchecker::ACES_CG_ENCODED,
-        );
+        rgb_workout(&model_f64::ACES_CG, &colorchecker::ACES_CG_LINEAR, &colorchecker::ACES_CG_ENCODED);
     }
 
     #[test]
     fn checker_dcip3() {
-        rgb_workout(
-            &model_f64::DCI_P3,
-            &colorchecker::DCI_P3_LINEAR,
-            &colorchecker::DCI_P3_ENCODED,
-        );
+        rgb_workout(&model_f64::DCI_P3, &colorchecker::DCI_P3_LINEAR, &colorchecker::DCI_P3_ENCODED);
     }
 
     #[test]
@@ -1045,13 +984,7 @@ mod test {
         let mtx = rgb_to_rgb_matrix(&model_f64::SRGB, &model_f64::ACES);
         for (name, srgb) in colorchecker::SRGB_LINEAR.iter() {
             let rgb_aces = mtx * *srgb;
-            assert!(rgb_aces.approx_eq(
-                colorchecker::ACES_FROM_SRGB[name],
-                F64Margin {
-                    epsilon: 1e-14,
-                    ulps: 1
-                }
-            ));
+            assert!(rgb_aces.approx_eq(colorchecker::ACES_FROM_SRGB[name], F64Margin { epsilon: 1e-14, ulps: 1 }));
         }
     }
 }

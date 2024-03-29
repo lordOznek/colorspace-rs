@@ -1,3 +1,5 @@
+#![allow(clippy::excessive_precision)]
+
 use lazy_static::lazy_static;
 
 use std::collections::HashMap;
@@ -9,10 +11,7 @@ use std::fmt::{Debug, Display};
 use crate::xyz::XYZf32;
 
 #[cfg(all(target_arch = "x86_64", target_feature = "avx"))]
-use std::arch::x86_64::{
-    __m256, _mm256_add_ps, _mm256_cvtss_f32, _mm256_hadd_ps, _mm256_loadu_ps,
-    _mm256_mul_ps, _mm256_permute2f128_ps,
-};
+use std::arch::x86_64::{__m256, _mm256_add_ps, _mm256_cvtss_f32, _mm256_hadd_ps, _mm256_loadu_ps, _mm256_mul_ps, _mm256_permute2f128_ps};
 
 pub const SPD_SAMPLES: usize = 40;
 pub const SPD_START: f32 = 380.0;
@@ -195,8 +194,7 @@ impl Mul for &SPD {
         let mut values = [0.0f32; SPD_SAMPLES];
         unsafe {
             for i in 0..SPD_SAMPLES {
-                *values.get_unchecked_mut(i) =
-                    self.values.get_unchecked(i) * rhs.values.get_unchecked(i);
+                *values.get_unchecked_mut(i) = self.values.get_unchecked(i) * rhs.values.get_unchecked(i);
             }
         }
 
@@ -241,13 +239,7 @@ mod test {
             let xyz_ref: XYZf32 = colorchecker::XYZ_D65[name].into();
             println!("    xyz: {}", xyz);
             println!("ref xyz: {}", xyz_ref);
-            assert!(xyz.approx_eq(
-                xyz_ref,
-                F32Margin {
-                    epsilon: 0.0,
-                    ulps: 1
-                }
-            ));
+            assert!(xyz.approx_eq(xyz_ref, F32Margin { epsilon: 0.0, ulps: 1 }));
         }
     }
 
@@ -259,13 +251,7 @@ mod test {
             let xyz_ref: XYZf32 = colorchecker::XYZ_D65[name].into();
             println!("    xyz: {}", xyz);
             println!("ref xyz: {}", xyz_ref);
-            assert!(xyz.approx_eq(
-                xyz_ref,
-                F32Margin {
-                    epsilon: 0.0,
-                    ulps: 2
-                }
-            ));
+            assert!(xyz.approx_eq(xyz_ref, F32Margin { epsilon: 0.0, ulps: 2 }));
         }
     }
 

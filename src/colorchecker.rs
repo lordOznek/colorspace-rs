@@ -1,3 +1,5 @@
+#![allow(clippy::excessive_precision)]
+
 use std::collections::HashMap;
 
 use lazy_static::lazy_static;
@@ -34,7 +36,6 @@ lazy_static! {
         "neutral_35",
         "black_20",
     ];
-
     pub static ref DARK_SKIN: VSPD = vspd!(
         380.0 => 0.055f64,
         390.0 => 0.058,
@@ -1191,7 +1192,6 @@ lazy_static! {
         "neutral_35".into() => rgbf(0.331037808091758145589978, 0.334672623006146807700389, 0.335932078162948566379953),
         "black_20".into() => rgbf(0.209157252034659707495834, 0.208858436350184084595583, 0.210734636918537693306419),
     };
-
     pub static ref ACES_FROM_SRGB: HashMap<String, RGBf64> = hashmap! {
         "dark_skin".into() => rgbf(0.118140705567927536967510, 0.089196809149613018319336, 0.062428568288180774636942),
         "light_skin".into() => rgbf(0.393855403315271468400738, 0.313060028548820923344209, 0.231621557878521566742336),
@@ -1218,7 +1218,6 @@ lazy_static! {
         "neutral_35".into() => rgbf(0.088887256441234727133427, 0.089871020577183630129170, 0.090691895333969388404149),
         "black_20".into() => rgbf(0.032109994202633732052199, 0.032007630292466379695604, 0.032511782310262998807460),
     };
-
     pub static ref SPECTRAL: HashMap<String, VSPD> = hashmap! {
         "dark_skin".to_string() => vspd! {
             380.000000 => 0.055000,

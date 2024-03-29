@@ -1,5 +1,7 @@
+#![allow(clippy::needless_range_loop)]
+
 pub use num_traits::{Bounded, Float, One, Zero};
-pub(crate) use std::ops::{Add, Div, Mul, Neg, Sub, AddAssign, SubAssign, MulAssign, DivAssign};
+pub(crate) use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use crate::rgb::RGBf;
 use crate::xyz::XYZ;
@@ -25,67 +27,106 @@ pub fn lerp(a: f32, b: f32, t: f32) -> f32 {
 }
 
 #[inline(always)]
-pub fn sqrt<T>(x: T) -> T where T: Real {
+pub fn sqrt<T>(x: T) -> T
+where
+    T: Real,
+{
     x.sqrt()
 }
 
 #[inline(always)]
-pub fn sqr<T>(x: T) -> T where T: Real {
+pub fn sqr<T>(x: T) -> T
+where
+    T: Real,
+{
     x * x
 }
 
 #[inline(always)]
-pub fn abs<T>(x: T) -> T where T: Real {
+pub fn abs<T>(x: T) -> T
+where
+    T: Real,
+{
     x.abs()
 }
 
 #[inline(always)]
-pub fn sin<T>(x: T) -> T where T: Real {
+pub fn sin<T>(x: T) -> T
+where
+    T: Real,
+{
     x.sin()
 }
 
 #[inline(always)]
-pub fn asin<T>(x: T) -> T where T: Real {
+pub fn asin<T>(x: T) -> T
+where
+    T: Real,
+{
     x.asin()
 }
 
 #[inline(always)]
-pub fn cos<T>(x: T) -> T where T: Real {
+pub fn cos<T>(x: T) -> T
+where
+    T: Real,
+{
     x.cos()
 }
 
 #[inline(always)]
-pub fn acos<T>(x: T) -> T where T: Real {
+pub fn acos<T>(x: T) -> T
+where
+    T: Real,
+{
     x.acos()
 }
 
 #[inline(always)]
-pub fn tan<T>(x: T) -> T where T: Real {
+pub fn tan<T>(x: T) -> T
+where
+    T: Real,
+{
     x.tan()
 }
 
 #[inline(always)]
-pub fn atan2<T>(x: T, y: T) -> T where T: Real {
+pub fn atan2<T>(x: T, y: T) -> T
+where
+    T: Real,
+{
     x.atan2(y)
 }
 
 #[inline(always)]
-pub fn exp<T>(x: T) -> T where T: Real {
+pub fn exp<T>(x: T) -> T
+where
+    T: Real,
+{
     x.exp()
 }
 
 #[inline(always)]
-pub fn pow<T>(x: T, y: T) -> T where T: Real {
+pub fn pow<T>(x: T, y: T) -> T
+where
+    T: Real,
+{
     x.powf(y)
 }
 
 #[inline(always)]
-pub fn hypot<T>(x: T, y: T) -> T where T: Real {
+pub fn hypot<T>(x: T, y: T) -> T
+where
+    T: Real,
+{
     x.hypot(y)
 }
 
 #[inline(always)]
-pub fn powi<T>(x: T, i: i32) -> T where T: Real {
+pub fn powi<T>(x: T, i: i32) -> T
+where
+    T: Real,
+{
     x.powi(i)
 }
 
@@ -98,20 +139,34 @@ pub fn powi<T>(x: T, i: i32) -> T where T: Real {
 /// others as indicated.  All rights reserved.
 #[repr(C)]
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Matrix33<T> where T: Real {
+pub struct Matrix33<T>
+where
+    T: Real,
+{
     pub x: [T; 9],
 }
 
 pub type M3f64 = Matrix33<f64>;
 pub type M3f32 = Matrix33<f32>;
 
-impl<T> Matrix33<T> where T: Real {
+impl<T> Matrix33<T>
+where
+    T: Real,
+{
     /// Return a new identity matrix
     pub fn make_identity() -> Matrix33<T> {
         Matrix33::<T> {
-            x: [T::one(), T::zero(), T::zero(), 
-                T::zero(), T::one(), T::zero(), 
-                T::zero(), T::zero(), T::one()],
+            x: [
+                T::one(),
+                T::zero(),
+                T::zero(),
+                T::zero(),
+                T::one(),
+                T::zero(),
+                T::zero(),
+                T::zero(),
+                T::one(),
+            ],
         }
     }
 
@@ -124,8 +179,7 @@ impl<T> Matrix33<T> where T: Real {
     pub fn transposed(&self) -> Matrix33<T> {
         Matrix33 {
             x: [
-                self[0][0], self[1][0], self[2][0], self[0][1], self[1][1],
-                self[2][1], self[0][2], self[1][2], self[2][2],
+                self[0][0], self[1][0], self[2][0], self[0][1], self[1][1], self[2][1], self[0][2], self[1][2], self[2][2],
             ],
         }
     }
@@ -139,7 +193,7 @@ impl<T> Matrix33<T> where T: Real {
 
     /// Gauss-Jordan matrix inversion
     pub fn gj_inverse(&self) -> Option<Matrix33<T>> {
-        let mut mtx_t = self.clone();
+        let mut mtx_t = *self;
         let mut mtx_s = Matrix33::make_identity();
 
         // Forward elimination
@@ -147,7 +201,6 @@ impl<T> Matrix33<T> where T: Real {
             let mut pivot = i;
             let mut pivot_size: T = self[i][i].abs();
 
-            #[allow(clippy::needless_range_loop)]
             for j in (i + 1)..3 {
                 let tmp = self[j][i].abs();
                 if tmp > pivot_size {
@@ -214,10 +267,7 @@ impl<T> Matrix33<T> where T: Real {
 
     /// Matrix inverse
     pub fn inverse(self) -> Option<Matrix33<T>> {
-        if self[0][2] > T::epsilon()
-            || self[1][2] > T::epsilon()
-            || (self[2][2] - T::one()).abs() > T::epsilon()
-        {
+        if self[0][2] > T::epsilon() || self[1][2] > T::epsilon() || (self[2][2] - T::one()).abs() > T::epsilon() {
             let mut mtx_s = Matrix33::new([
                 self[1][1] * self[2][2] - self[2][1] * self[1][2],
                 self[2][1] * self[0][2] - self[0][1] * self[2][2],
@@ -230,9 +280,7 @@ impl<T> Matrix33<T> where T: Real {
                 self[0][0] * self[1][1] - self[1][0] * self[0][1],
             ]);
 
-            let r = self[0][0] * mtx_s[0][0]
-                + self[0][1] * mtx_s[1][0]
-                + self[0][2] * mtx_s[2][0];
+            let r = self[0][0] * mtx_s[0][0] + self[0][1] * mtx_s[1][0] + self[0][2] * mtx_s[2][0];
 
             if r.abs() >= T::one() {
                 for s in mtx_s.x.iter_mut() {
@@ -301,14 +349,17 @@ impl From<M3f64> for M3f32 {
                 m.x[6] as f32,
                 m.x[7] as f32,
                 m.x[8] as f32,
-            ]
+            ],
         }
     }
 }
 
 /// Index operator. Returns a slice of the underlying matrix to allow
 /// `m[i][j]` indexing
-impl<T> Index<usize> for Matrix33<T> where T: Real {
+impl<T> Index<usize> for Matrix33<T>
+where
+    T: Real,
+{
     type Output = [T];
 
     fn index(&self, index: usize) -> &[T] {
@@ -319,19 +370,24 @@ impl<T> Index<usize> for Matrix33<T> where T: Real {
 
 /// Mutable Index operator. Returns a slice of the underlying matrix to allow
 /// `m[i][j]` indexing
-impl<T> IndexMut<usize> for Matrix33<T> where T: Real {
+impl<T> IndexMut<usize> for Matrix33<T>
+where
+    T: Real,
+{
     fn index_mut(&mut self, index: usize) -> &mut [T] {
         let offset = index * 3;
         &mut self.x[offset..(offset + 3)]
     }
 }
 
-impl<T> Mul for Matrix33<T> where T: Real {
+impl<T> Mul for Matrix33<T>
+where
+    T: Real,
+{
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self {
         let mut m = Matrix33::<T>::new([T::zero(); 9]);
-        #[allow(clippy::needless_range_loop)]
         for i in 0..3 {
             for j in 0..3 {
                 for k in 0..3 {
@@ -344,7 +400,10 @@ impl<T> Mul for Matrix33<T> where T: Real {
     }
 }
 
-impl<T> Add<T> for Matrix33<T> where T: Real {
+impl<T> Add<T> for Matrix33<T>
+where
+    T: Real,
+{
     type Output = Self;
 
     fn add(self, rhs: T) -> Self {
@@ -362,7 +421,10 @@ impl<T> Add<T> for Matrix33<T> where T: Real {
     }
 }
 
-impl<T> Sub<T> for Matrix33<T> where T: Real {
+impl<T> Sub<T> for Matrix33<T>
+where
+    T: Real,
+{
     type Output = Self;
 
     fn sub(self, rhs: T) -> Self {
@@ -380,7 +442,10 @@ impl<T> Sub<T> for Matrix33<T> where T: Real {
     }
 }
 
-impl<T> Mul<T> for Matrix33<T> where T: Real {
+impl<T> Mul<T> for Matrix33<T>
+where
+    T: Real,
+{
     type Output = Self;
 
     fn mul(self, rhs: T) -> Self {
@@ -398,7 +463,10 @@ impl<T> Mul<T> for Matrix33<T> where T: Real {
     }
 }
 
-impl<T> Div<T> for Matrix33<T> where T: Real {
+impl<T> Div<T> for Matrix33<T>
+where
+    T: Real,
+{
     type Output = Self;
 
     fn div(self, rhs: T) -> Self {
@@ -416,18 +484,23 @@ impl<T> Div<T> for Matrix33<T> where T: Real {
     }
 }
 
-impl<T> Neg for Matrix33<T> where T: Real {
+impl<T> Neg for Matrix33<T>
+where
+    T: Real,
+{
     type Output = Self;
 
     fn neg(self) -> Self {
         Matrix33::new([
-            -self.x[0], -self.x[1], -self.x[2], -self.x[3], -self.x[4],
-            -self.x[5], -self.x[6], -self.x[7], -self.x[8],
+            -self.x[0], -self.x[1], -self.x[2], -self.x[3], -self.x[4], -self.x[5], -self.x[6], -self.x[7], -self.x[8],
         ])
     }
 }
 
-impl<T> Mul<XYZ<T>> for Matrix33<T> where T: Real {
+impl<T> Mul<XYZ<T>> for Matrix33<T>
+where
+    T: Real,
+{
     type Output = XYZ<T>;
 
     fn mul(self, xyz: XYZ<T>) -> XYZ<T> {
@@ -439,7 +512,10 @@ impl<T> Mul<XYZ<T>> for Matrix33<T> where T: Real {
     }
 }
 
-impl<T> Mul<RGBf<T>> for Matrix33<T> where T: Real {
+impl<T> Mul<RGBf<T>> for Matrix33<T>
+where
+    T: Real,
+{
     type Output = RGBf<T>;
 
     fn mul(self, rgb: RGBf<T>) -> RGBf<T> {
@@ -450,7 +526,6 @@ impl<T> Mul<RGBf<T>> for Matrix33<T> where T: Real {
         )
     }
 }
-
 
 pub trait Scalar:
     Copy

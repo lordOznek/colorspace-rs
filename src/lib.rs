@@ -106,9 +106,7 @@ pub mod xyz;
 pub use xyz::{XYZf32, XYZf64};
 
 pub mod rgb;
-pub use rgb::{
-    rgbf32, rgbf64, rgbu16, rgbu8, RGBAf32, RGBf32, RGBf64, RGBu16, RGBu8,
-};
+pub use rgb::{rgbf32, rgbf64, rgbu16, rgbu8, RGBAf32, RGBf32, RGBf64, RGBu16, RGBu8};
 
 pub mod math;
 pub use math::{M3f32, M3f64, Matrix33};
